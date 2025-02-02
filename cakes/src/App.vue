@@ -1,7 +1,7 @@
 vue
 <template>
   <div class="container">
-    <div class="cakes-list" v-infinite-scroll="fetchCakes" infinite-scroll-disabled="loading" infinite-scroll-distance="10">
+    <div class="cakes-list" @scroll="handleScroll">
       <div
         class="cake-item"
         v-for="cake in cakes"
@@ -33,17 +33,18 @@ export default {
   },
   mounted() {
     this.fetchCakes();
+    window.addEventListener('scroll', this.handleScroll);
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
     async fetchCakes() {
       if (this.loading || !this.hasMore) return;
-
       this.loading = true;
-
       try {
         const response = await fetch(`http://127.0.0.1:9000/api/cakes/?page=${this.page}`);
         const data = await response.json();
-
         if (data.results && data.results.length > 0) {
           this.cakes.push(...data.results);
           this.hasMore = !!data.next; // Проверяем, есть ли следующая страница
@@ -65,10 +66,7 @@ export default {
       const scrollTop = window.scrollY;
       const clientHeight = window.innerHeight;
 
-      console.log('Scroll position:', scrollTop + clientHeight, 'Scroll height:', scrollHeight);
-
       if (scrollTop + clientHeight >= scrollHeight - 5) {
-        console.log('Loading more cakes...');
         this.fetchCakes();
       }
     },
@@ -82,7 +80,6 @@ export default {
   display: flex;
   justify-content: center; /* Центрируем содержимое по горизонтали */
 }
-
 .cakes-list {
   display: flex;
   flex-wrap: wrap;
@@ -90,19 +87,16 @@ export default {
   max-width: 1200px; /* Максимальная ширина контейнера */
   width: 100%; /* Ширина на 100% */
 }
-
 .cake-item {
   width: 200px;
   margin: 10px;
   text-align: center;
 }
-
 .cake-image {
   width: 100%;
   height: 150px; /* Задайте фиксированную высоту */
   object-fit: cover; /* Обеспечивает обрезку изображения, чтобы оно соответствовало заданным пропорциям */
 }
-
 .loading {
   text-align: center;
   margin-top: 20px;
