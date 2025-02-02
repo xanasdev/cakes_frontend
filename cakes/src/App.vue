@@ -43,7 +43,7 @@ export default {
       if (this.loading || !this.hasMore) return;
       this.loading = true;
       try {
-        const response = await fetch(`http://127.0.0.1:9000/api/cakes/?page=${this.page}`);
+        const response = await fetch(`https://0eh2tecma7vk.share.zrok.io/api/cakes/?page=${this.page}`);
         const data = await response.json();
         if (data.results && data.results.length > 0) {
           this.cakes.push(...data.results);
